@@ -1,29 +1,63 @@
-const cartDiv = document.querySelector('.cart-items');
-let cart = JSON.parse(localStorage.getItem('cartItems')) || [];
+const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+const cartMsg = document.querySelector('#cart-msg');
+const totalAmount = document.querySelector('#total-amount');
 
-function renderCart() {
-    cartDiv.innerHTML = '';
-    for (let i = 0; i < cart.length; i++) {
-        cartDiv.innerHTML += `
-            <div class="cart-item card bg-dark text-light border-light" style="width: 18rem;">
-                <div class="card-body">
-                    <h5 class="card-title">${cart[i].brand} ${cart[i].model}</h5>
-                    <p class="card-text">Price: Rs ${cart[i].price}</p>
-                    <p class="card-text">Quantity: ${cart[i].quantity}</p>
-                    <button onclick="removeFromCart(${i})" class="btn btn-danger">Remove from Cart</button>
+function renderItems() {
+    cartMsg.innerHTML = '';
+    totalAmount.innerHTML = '';
+    let total = 0;
+
+    if (cartItems.length > 0) {
+        for (let i = 0; i < cartItems.length; i++) {
+            total += cartItems[i].price * cartItems[i].quantity;
+            cartMsg.innerHTML += `
+            <div class="card text-center">
+                <div class="card-header bg-dark text-light">
+                    <h4>${cartItems[i].model}</h4>
+                </div>
+                <div class="card-body bg-dark text-light">
+                    <h5 class="card-title">RAM:${cartItems[i].RAM}, ROM:${cartItems[i].RAM}</h5>
+                    <h5 class="card-title">Quantity: ${cartItems[i].quantity}</h5>
+                    <h5 class="card-title">Price: ${cartItems[i].price * cartItems[i].quantity}</h5>
+                    <p class="card-title">Description: ${cartItems[i].description}</p>
+                    <a href="#" class="btn btn-primary" onclick="addQuantity(${i})">Add</a>
+                    <a href="#" class="btn btn-primary" onclick="lessQuantity(${i})">Less</a>
+                    <button class="btn btn-danger" onclick="deleteItem(${i})">Delete</button>
                 </div>
             </div>`;
+        }
+        totalAmount.innerHTML = `Total Amount = ${total}`;
+    } else {
+        cartMsg.innerHTML = `
+        <h3 class="text-center">Your Cart is empty! Please Select one..</h3>
+        `;
     }
+
 }
 
-function removeFromCart(index) {
-    cart.splice(index, 1);
-    localStorage.setItem('cartItems', JSON.stringify(cart));
-    renderCart();
+function updateCart() {
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+    renderItems();
 }
 
-function goBack() {
-    window.location = 'index.html';
+function addQuantity(i) {
+    cartItems[i].quantity += 1;
+    updateCart();
 }
 
-renderCart();
+function lessQuantity(i) {
+    if (cartItems[i].quantity <= 1) {
+        cartItems.splice(i, 1);
+    } else {
+        cartItems[i].quantity -= 1;
+    }
+    updateCart();
+}
+
+function deleteItem(i) {
+    cartItems.splice(i, 1);
+    updateCart();
+    alert("Item has been Removed!!");
+}
+
+renderItems();
